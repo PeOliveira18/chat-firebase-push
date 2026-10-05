@@ -10,8 +10,8 @@ import type { ExpoConfig } from 'expo/config';
  */
 const ANDROID_PACKAGE = 'br.com.fiap.chatfirebasepush';
 const IOS_BUNDLE_ID = 'br.com.fiap.chatfirebasepush';
-// Preencha com o projectId exibido por `npx eas-cli@latest init` (necessário para o token de push).
-const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID ?? '';
+// Projeto EAS @pe.oliveira/chat-firebase-push (necessário para o token de push).
+const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID ?? '38e49d5c-e52e-4d94-a883-c0ad4d9a7f53';
 
 const hasGoogleServices = existsSync('./google-services.json');
 const hasGoogleServicesPlist = existsSync('./GoogleService-Info.plist');
@@ -19,6 +19,7 @@ const hasGoogleServicesPlist = existsSync('./GoogleService-Info.plist');
 const config: ExpoConfig = {
   name: 'Chat Firebase Push',
   slug: 'chat-firebase-push',
+  owner: 'pe.oliveira',
   scheme: 'chatfirebasepush',
   version: '1.0.0',
   orientation: 'portrait',
