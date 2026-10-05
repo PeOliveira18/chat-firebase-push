@@ -1,8 +1,7 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
@@ -30,11 +29,29 @@ export const ANDROID_CHANNEL_ID = 'messages';
  * O envio efetivo do push acontece SOMENTE na API (nunca no app).
  */
 
-/** Push só existe em Android/iOS; na web as funções abaixo não fazem nada. */
-const PUSH_SUPPORTED = Platform.OS === 'android' || Platform.OS === 'ios';
+type NotificationsModule = typeof import('expo-notifications');
+
+type Subscription = { remove: () => void };
+
+const NO_SUBSCRIPTION: Subscription = { remove: () => undefined };
+
+/**
+ * O Expo Go no Android não suporta push desde o SDK 53: apenas importar
+ * expo-notifications já gera erro. Por isso o módulo só é carregado em
+ * builds nativos (APK/development build) e no iOS. Na web também não há push.
+ */
+const IS_EXPO_GO_ANDROID =
+  Platform.OS === 'android' && Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+const PUSH_SUPPORTED = (Platform.OS === 'android' || Platform.OS === 'ios') && !IS_EXPO_GO_ANDROID;
+
+const Notifications: NotificationsModule | null = PUSH_SUPPORTED
+  ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('expo-notifications')
+  : null;
 
 export function configureNotificationHandler(): void {
-  if (!PUSH_SUPPORTED) {
+  if (!Notifications) {
     return;
   }
 
@@ -49,7 +66,7 @@ export function configureNotificationHandler(): void {
 }
 
 async function ensureAndroidChannel(): Promise<void> {
-  if (Platform.OS !== 'android') {
+  if (Platform.OS !== 'android' || !Notifications) {
     return;
   }
 
@@ -107,7 +124,14 @@ async function saveDeviceToken(uid: string, token: string): Promise<void> {
  * Solicita permissão, obtém o token e o grava em users/{uid}/devices/{deviceId}.
  */
 export async function registerDevice(uid: string): Promise<PushRegistrationState> {
-  if (!PUSH_SUPPORTED) {
+  if (IS_EXPO_GO_ANDROID) {
+    return {
+      status: 'unavailable',
+      reason: 'O Expo Go no Android não recebe notificações push. Instale o APK para testar o push.',
+    };
+  }
+
+  if (!Notifications) {
     return { status: 'unavailable', reason: 'Notificações push estão disponíveis apenas no Android e iOS.' };
   }
 
@@ -153,9 +177,9 @@ export async function registerDevice(uid: string): Promise<PushRegistrationState
 }
 
 /** Atualiza o token salvo quando o sistema o renova. */
-export function subscribeToTokenRefresh(uid: string): Notifications.EventSubscription {
-  if (!PUSH_SUPPORTED) {
-    return { remove: () => undefined };
+export function subscribeToTokenRefresh(uid: string): Subscription {
+  if (!Notifications) {
+    return NO_SUBSCRIPTION;
   }
 
   return Notifications.addPushTokenListener(() => {
@@ -189,7 +213,7 @@ function isConversationType(value: unknown): value is ConversationType {
 
 /** Tocar em uma notificação: só existe em Android/iOS. */
 export function getInitialNotificationData(): NotificationData | null {
-  if (!PUSH_SUPPORTED) {
+  if (!Notifications) {
     return null;
   }
 
@@ -205,9 +229,9 @@ export function getInitialNotificationData(): NotificationData | null {
 
 export function subscribeToNotificationTaps(
   onTap: (data: NotificationData) => void,
-): Notifications.EventSubscription {
-  if (!PUSH_SUPPORTED) {
-    return { remove: () => undefined };
+): Subscription {
+  if (!Notifications) {
+    return NO_SUBSCRIPTION;
   }
 
   return Notifications.addNotificationResponseReceivedListener((response) => {
