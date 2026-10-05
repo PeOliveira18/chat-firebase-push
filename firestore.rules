@@ -1,0 +1,138 @@
+rules_version = '2';
+
+// Cloud Firestore: perfis, grupos, conversas individuais, tokens de dispositivos.
+// Operações que alteram integrantes/limite dos grupos são feitas SOMENTE pela API
+// (Firebase Admin SDK ignora estas regras e usa transações).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isText(value, minSize, maxSize) {
+      return value is string && value.size() >= minSize && value.size() <= maxSize;
+    }
+
+    // Fotos no Cloudinary: somente a URL final é armazenada.
+    function isPhotoUrl(value) {
+      return value is string
+        && (value == '' || value.matches('^https://res[.]cloudinary[.]com/.*'));
+    }
+
+    function isPolicy(value) {
+      return value in ['all_group_messages', 'mentioned_members', 'direct_messages_only', 'disabled'];
+    }
+
+    // Existe uma conversa individual entre o usuário autenticado e "uid".
+    function sharesDirectConversation(uid) {
+      return exists(/databases/$(database)/documents/directConversations/$(request.auth.uid + '_' + uid))
+        || exists(/databases/$(database)/documents/directConversations/$(uid + '_' + request.auth.uid));
+    }
+
+    // Existe um grupo em comum (vínculo mantido pela API).
+    function sharesGroup(uid) {
+      return exists(/databases/$(database)/documents/userLinks/$(request.auth.uid + '_' + uid));
+    }
+
+    function validUser(uid) {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['uid', 'name', 'email', 'phoneNumber', 'birthDate', 'photoUrl', 'createdAt'])
+        && data.uid == uid
+        && isText(data.name, 1, 80)
+        && data.email == request.auth.token.email
+        && isText(data.phoneNumber, 8, 20)
+        && isText(data.birthDate, 10, 10)
+        && isPhotoUrl(data.photoUrl)
+        && data.createdAt is int;
+    }
+
+    function validDevice() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['token', 'platform', 'enabled', 'updatedAt', 'disabledReason'])
+        && isText(data.token, 1, 300)
+        && data.platform in ['android', 'ios', 'web']
+        && data.enabled is bool
+        && data.updatedAt is int;
+    }
+
+    function validDirectConversation(conversationId) {
+      let data = request.resource.data;
+      let participants = data.participantIds;
+      return data.keys().hasOnly(['participantIds', 'createdAt'])
+        && participants is list
+        && participants.size() == 2
+        && participants[0] < participants[1]
+        && request.auth.uid in participants
+        && conversationId == participants[0] + '_' + participants[1]
+        && exists(/databases/$(database)/documents/publicProfiles/$(participants[0]))
+        && exists(/databases/$(database)/documents/publicProfiles/$(participants[1]))
+        && data.createdAt is int;
+    }
+
+    // Dados cadastrais: somente o próprio usuário ou quem compartilha conversa/grupo.
+    match /users/{uid} {
+      allow get: if isSelf(uid) || (signedIn() && (sharesDirectConversation(uid) || sharesGroup(uid)));
+      allow list: if false;
+      allow create: if isSelf(uid) && validUser(uid);
+      allow update: if isSelf(uid)
+        && validUser(uid)
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+
+      // Tokens de push: privados, apenas o dono lê e grava.
+      match /devices/{deviceId} {
+        allow read, delete: if isSelf(uid);
+        allow create, update: if isSelf(uid) && validDevice();
+      }
+    }
+
+    // Nome e foto: visíveis a usuários autenticados (lista/busca de usuários).
+    match /publicProfiles/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'photoUrl'])
+        && request.resource.data.uid == uid
+        && isText(request.resource.data.name, 1, 80)
+        && isPhotoUrl(request.resource.data.photoUrl);
+      allow delete: if false;
+    }
+
+    // Grupos: somente integrantes leem; somente o proprietário altera nome, foto e política.
+    // memberIds e memberLimit só podem ser alterados pela API (transação).
+    match /groups/{groupId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.memberIds;
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'photoUrl', 'notificationPolicy', 'updatedAt'])
+        && isText(request.resource.data.name, 1, 60)
+        && isPhotoUrl(request.resource.data.photoUrl)
+        && isPolicy(request.resource.data.notificationPolicy)
+        && request.resource.data.updatedAt is int;
+      allow create, delete: if false;
+    }
+
+    // Conversas individuais: ID = uids ordenados (impede duplicidade).
+    match /directConversations/{conversationId} {
+      allow get: if signedIn() && request.auth.uid in conversationId.split('_');
+      allow list: if signedIn() && request.auth.uid in resource.data.participantIds;
+      allow create: if signedIn() && validDirectConversation(conversationId);
+      allow update, delete: if false;
+    }
+
+    // Mantidos exclusivamente pela API.
+    match /userLinks/{linkId} {
+      allow read, write: if false;
+    }
+
+    match /notificationDispatches/{dispatchId} {
+      allow read, write: if false;
+    }
+  }
+}

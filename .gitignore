@@ -39,3 +39,22 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# segredos (NUNCA versionar)
+.env
+server/.env
+serviceAccountKey.json
+serviceAccount*.json
+firebaseAdminCredentials.json
+*-firebase-adminsdk-*.json
+
+# API
+server/node_modules/
+server/dist/
+
+# Firebase CLI
+.firebase/
+*-debug.log
+
+# ferramentas locais
+.claude/launch.json

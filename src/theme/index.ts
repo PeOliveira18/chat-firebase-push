@@ -1,0 +1,48 @@
+/** Design tokens centralizados (cores, espaçamentos, raios e tipografia). */
+export const theme = {
+  colors: {
+    primary: '#2563EB',
+    primaryDark: '#1D4ED8',
+    primaryLight: '#DBEAFE',
+    secondary: '#0F172A',
+    background: '#F8FAFC',
+    card: '#FFFFFF',
+    text: '#0F172A',
+    textSecondary: '#64748B',
+    textOnPrimary: '#FFFFFF',
+    border: '#E2E8F0',
+    danger: '#DC2626',
+    dangerLight: '#FEE2E2',
+    success: '#16A34A',
+    warning: '#D97706',
+    warningLight: '#FEF3C7',
+    myMessage: '#2563EB',
+    otherMessage: '#FFFFFF',
+    group: '#7C3AED',
+    groupLight: '#EDE9FE',
+    direct: '#0891B2',
+    directLight: '#CFFAFE',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+  },
+  radius: {
+    sm: 8,
+    md: 16,
+    lg: 24,
+    full: 999,
+  },
+  fontSize: {
+    xs: 12,
+    sm: 14,
+    md: 16,
+    lg: 20,
+    xl: 26,
+  },
+} as const;
+
+export type Theme = typeof theme;
