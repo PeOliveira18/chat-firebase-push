@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 
 import { HttpError } from '../utils/httpError.js';
 
-/** Respostas de erro padronizadas, sem expor detalhes internos ou credenciais. */
 export function errorHandler(error: unknown, _req: Request, res: Response, _next: NextFunction): void {
   if (error instanceof HttpError) {
     res.status(error.status).json({ code: error.code, message: error.message });

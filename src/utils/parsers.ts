@@ -3,13 +3,6 @@ import { ChatGroup } from '../types/group';
 import { NOTIFICATION_POLICIES, NotificationPolicy } from '../types/notification';
 import { ChatUser, PublicProfile } from '../types/user';
 
-/**
- * Conversores de dados lidos do Firebase.
- *
- * O SDK devolve dados sem tipo garantido; aqui cada campo é validado
- * explicitamente, evitando o uso de `any` no restante do app.
- */
-
 type UnknownRecord = Record<string, unknown>;
 
 export function isRecord(value: unknown): value is UnknownRecord {
@@ -29,7 +22,6 @@ export function asStringArray(value: unknown): string[] {
     return value.filter((item): item is string => typeof item === 'string');
   }
 
-  // O RTDB pode devolver arrays como objetos { "0": "a", "1": "b" }.
   if (isRecord(value)) {
     return Object.values(value).filter((item): item is string => typeof item === 'string');
   }

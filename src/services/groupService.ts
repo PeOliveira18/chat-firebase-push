@@ -22,15 +22,6 @@ import { uploadImage } from './storageService';
 
 const GROUPS_COLLECTION = 'groups';
 
-/**
- * Operações que alteram integrantes ou o limite passam pela API, que executa
- * uma transação no Firestore (proteção contra concorrência) e sincroniza o
- * espelho de integrantes usado pelas regras do Realtime Database.
- *
- * Nome, foto e política de notificação são atualizados diretamente no Firestore;
- * as regras garantem que somente o proprietário altere esses campos.
- */
-
 function ensureValid(message: string | null): void {
   if (message) {
     throw new AppError(message);

@@ -12,7 +12,6 @@ export type NotifyResult = {
   devices: number;
 };
 
-/** Confirma no Realtime Database que a mensagem existe. */
 async function loadMessage(conversationId: string, messageId: string): Promise<StoredMessage> {
   const snapshot = await rtdb().ref(`messages/${conversationId}/${messageId}`).get();
   const value: unknown = snapshot.val();
@@ -25,7 +24,6 @@ async function loadMessage(conversationId: string, messageId: string): Promise<S
   return message;
 }
 
-/** Consulta no Firestore os participantes e a política da conversa. */
 async function loadConversation(conversationId: string): Promise<ConversationContext> {
   if (isDirectConversationId(conversationId)) {
     const snapshot = await firestore().collection('directConversations').doc(conversationId).get();
@@ -64,10 +62,6 @@ async function getSenderName(uid: string): Promise<string> {
   return name || 'Alguém';
 }
 
-/**
- * Texto da notificação sem expor o conteúdo da mensagem
- * (evita informações sensíveis na tela de bloqueio).
- */
 function buildContent(conversation: ConversationContext, senderName: string, recipient: Recipient): PushContent {
   if (conversation.type === 'direct') {
     return { uid: recipient.uid, title: senderName, body: 'Enviou uma nova mensagem.' };
@@ -128,7 +122,6 @@ export async function notifyMessage(uid: string, conversationId: string, message
 
     return { status: 'sent', recipients: recipients.length, devices: result.devices };
   } catch (error) {
-    // Se nada foi enviado, libera a reserva para que o app possa tentar de novo.
     if (!pushed) {
       await releaseDispatch(conversationId, messageId).catch(() => undefined);
       throw error;

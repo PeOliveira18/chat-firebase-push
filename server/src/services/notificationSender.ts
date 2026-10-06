@@ -5,11 +5,6 @@ import { EXPO_ACCESS_TOKEN } from '../config/env.js';
 import { asString } from '../utils/parsers.js';
 import { firestore } from './firebaseAdmin.js';
 
-/**
- * Envio pelo Expo Push Service. No Android a entrega é feita pelo
- * Firebase Cloud Messaging (credencial FCM V1 configurada no EAS) e,
- * no iOS, pelo APNs.
- */
 const expo = new Expo({ accessToken: EXPO_ACCESS_TOKEN });
 
 const RECEIPT_CHECK_DELAY_MS = 15000;
@@ -58,7 +53,6 @@ async function loadEnabledDevices(uid: string): Promise<DeviceTarget[]> {
     if (Expo.isExpoPushToken(token)) {
       devices.push({ ref: document.ref, token });
     } else {
-      // Token inválido: desativado para não ser usado novamente.
       await disableDevice(document.ref, 'InvalidToken');
     }
   }
@@ -70,7 +64,6 @@ function isDeviceNotRegistered(ticket: ExpoPushTicket): boolean {
   return ticket.status === 'error' && ticket.details?.error === 'DeviceNotRegistered';
 }
 
-/** Os recibos confirmam a entrega; tokens não registrados são desativados. */
 function scheduleReceiptCheck(receipts: Map<string, DocumentReference>): void {
   if (receipts.size === 0) {
     return;

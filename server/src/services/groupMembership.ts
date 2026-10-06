@@ -12,28 +12,11 @@ import {
   MIN_GROUP_MEMBERS,
 } from './groupRules.js';
 
-/**
- * Gerenciamento de integrantes e limite dos grupos.
- *
- * PROTEÇÃO CONTRA CONCORRÊNCIA: toda alteração de memberIds/memberLimit é feita
- * dentro de uma transação do Firestore. A transação lê o documento do grupo,
- * valida a capacidade e grava; se outra requisição alterar o grupo no meio do
- * caminho, a transação é refeita com os dados novos. Assim, duas entradas
- * simultâneas nunca ultrapassam o limite. As regras do Firestore impedem que
- * o app altere esses campos diretamente, então esta é a única porta de entrada.
- *
- * Após cada transação, a API atualiza dados derivados:
- * - RTDB groupMembers/{groupId}: usado pelas regras do Realtime Database para
- *   permitir leitura/escrita de mensagens apenas por integrantes ativos;
- * - Firestore userLinks: libera a leitura de perfis entre integrantes.
- */
-
 const GROUPS = 'groups';
 const PUBLIC_PROFILES = 'publicProfiles';
 const USER_LINKS = 'userLinks';
 const BATCH_LIMIT = 400;
 
-// IDs automáticos do Firestore: 20 caracteres alfanuméricos (sem "_").
 const GROUP_ID_REGEX = /^[A-Za-z0-9]{20}$/;
 const PHOTO_URL_PREFIX = 'https://res.cloudinary.com/';
 
@@ -83,7 +66,6 @@ async function assertUsersExist(uids: string[]): Promise<void> {
   }
 }
 
-/** Espelho de integrantes ativos no RTDB (com novas tentativas). */
 async function syncMembersMirror(groupId: string, memberIds: string[]): Promise<void> {
   const members = Object.fromEntries(memberIds.map((uid) => [uid, true]));
 
@@ -122,7 +104,6 @@ async function commitInChunks(operations: ((batch: WriteBatch) => void)[]): Prom
   }
 }
 
-/** Cria os vínculos que liberam a leitura de perfis entre integrantes. */
 async function addUserLinks(groupId: string, newMembers: string[], allMembers: string[]): Promise<void> {
   const operations = pairs(newMembers, allMembers).map(([viewerId, targetId]) => (batch: WriteBatch) => {
     batch.set(
@@ -135,7 +116,6 @@ async function addUserLinks(groupId: string, newMembers: string[], allMembers: s
   await commitInChunks(operations);
 }
 
-/** Remove o vínculo do grupo; o documento é apagado se não houver outro grupo em comum. */
 async function removeUserLinks(groupId: string, removedId: string, remaining: string[]): Promise<void> {
   const refs = pairs([removedId], remaining).map(([viewerId, targetId]) =>
     firestore().collection(USER_LINKS).doc(`${viewerId}_${targetId}`),
@@ -278,7 +258,6 @@ export async function addMembers(uid: string, groupId: string, requested: unknow
       throw forbidden('Somente o proprietário pode adicionar integrantes.', 'NOT_GROUP_OWNER');
     }
 
-    // Validação de capacidade feita com o estado mais recente do documento.
     const memberIds = computeMembersAfterAdd(group.memberIds, requestedIds, group.memberLimit);
     const updatedAt = Date.now();
 
@@ -314,7 +293,6 @@ export async function removeMember(uid: string, groupId: string, memberId: strin
 
     const group = parseGroup(groupId, data);
 
-    // O proprietário remove qualquer integrante; um integrante pode sair por conta própria.
     if (group.ownerId !== uid && memberId !== uid) {
       throw forbidden('Somente o proprietário pode remover integrantes.', 'NOT_GROUP_OWNER');
     }
@@ -335,7 +313,6 @@ export async function removeMember(uid: string, groupId: string, memberId: strin
     return { ...group, memberIds, updatedAt };
   });
 
-  // Remove o acesso às mensagens imediatamente.
   await syncMembersMirror(groupId, updated.memberIds);
   await removeUserLinks(groupId, memberId, updated.memberIds);
 

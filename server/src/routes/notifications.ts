@@ -7,13 +7,6 @@ import { isRecord, isValidId } from '../utils/parsers.js';
 
 export const notificationsRouter = Router();
 
-/**
- * POST /notifications/messages
- * Authorization: Bearer <firebase-id-token>
- * { "conversationId": "...", "messageId": "..." }
- *
- * Os destinatários são calculados no servidor a partir da política da conversa.
- */
 notificationsRouter.post('/notifications/messages', authenticate, async (req, res) => {
   const body: unknown = req.body;
 

@@ -58,8 +58,6 @@ export function GroupFormScreen({ navigation, route }: Props) {
     navigation.setOptions({ title: isEditing ? 'Editar grupo' : 'Novo grupo' });
   }, [navigation, isEditing]);
 
-  // Preenche o formulário com os dados atuais do grupo (modo edição).
-  // Ajuste de estado durante a renderização, conforme recomendado pelo React.
   if (group && initializedGroupId !== group.id) {
     setInitializedGroupId(group.id);
     setName(group.name);
@@ -67,7 +65,6 @@ export function GroupFormScreen({ navigation, route }: Props) {
     setPolicy(group.notificationPolicy);
   }
 
-  // Recebe os integrantes escolhidos na tela de Usuários (modo criação).
   if (!isEditing && returnedMemberIds && returnedMemberIds !== handledSelection) {
     setHandledSelection(returnedMemberIds);
     setSelectedIds(returnedMemberIds);

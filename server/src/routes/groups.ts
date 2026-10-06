@@ -25,7 +25,6 @@ function readGroupId(value: unknown): string {
   return value;
 }
 
-/** POST /groups — cria o grupo (proprietário = usuário autenticado). */
 groupsRouter.post('/groups', async (req, res) => {
   const body = readBody(req.body);
   const group = await createGroup(getAuthenticatedUid(res), {
@@ -40,7 +39,6 @@ groupsRouter.post('/groups', async (req, res) => {
   res.status(201).json(group);
 });
 
-/** PATCH /groups/:groupId/limit — altera o limite de integrantes. */
 groupsRouter.patch('/groups/:groupId/limit', async (req, res) => {
   const body = readBody(req.body);
   const group = await updateMemberLimit(getAuthenticatedUid(res), readGroupId(req.params.groupId), body.memberLimit);
@@ -48,7 +46,6 @@ groupsRouter.patch('/groups/:groupId/limit', async (req, res) => {
   res.json(group);
 });
 
-/** POST /groups/:groupId/members — adiciona integrantes (respeitando o limite). */
 groupsRouter.post('/groups/:groupId/members', async (req, res) => {
   const body = readBody(req.body);
   const group = await addMembers(getAuthenticatedUid(res), readGroupId(req.params.groupId), body.memberIds);
@@ -56,7 +53,6 @@ groupsRouter.post('/groups/:groupId/members', async (req, res) => {
   res.json(group);
 });
 
-/** DELETE /groups/:groupId/members/:memberId — remove integrante ou sai do grupo. */
 groupsRouter.delete('/groups/:groupId/members/:memberId', async (req, res) => {
   const group = await removeMember(
     getAuthenticatedUid(res),

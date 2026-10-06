@@ -16,10 +16,6 @@ function subscribeToAllUsers(
   return observePublicProfiles(onNext, onError);
 }
 
-/**
- * Lista de usuários cadastrados com busca por nome.
- * O próprio usuário é removido da lista (não pode conversar consigo mesmo).
- */
 export function useUsers(currentUid: string) {
   const [search, setSearch] = useState('');
   const { data: users, loading, error } = useSubscription(ALL_USERS_KEY, subscribeToAllUsers, NO_USERS);

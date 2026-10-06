@@ -3,7 +3,6 @@ import { FirebaseError } from 'firebase/app';
 
 import { isRecord } from './parsers';
 
-/** Erro com mensagem já adequada para exibição ao usuário. */
 export class AppError extends Error {
   constructor(message: string) {
     super(message);
@@ -12,7 +11,6 @@ export class AppError extends Error {
 }
 
 const FIREBASE_MESSAGES: Record<string, string> = {
-  // Authentication
   'auth/invalid-credential': 'E-mail ou senha inválidos.',
   'auth/wrong-password': 'E-mail ou senha inválidos.',
   'auth/user-not-found': 'E-mail ou senha inválidos.',
@@ -24,7 +22,6 @@ const FIREBASE_MESSAGES: Record<string, string> = {
   'auth/user-token-expired': 'Sua sessão expirou. Faça login novamente.',
   'auth/requires-recent-login': 'Sua sessão expirou. Faça login novamente.',
   'auth/user-disabled': 'Esta conta foi desativada.',
-  // Firestore
   'permission-denied': 'Você não tem permissão para realizar esta ação.',
   unavailable: 'Serviço indisponível. Verifique sua conexão.',
   'deadline-exceeded': 'A operação demorou demais. Tente novamente.',
@@ -32,7 +29,6 @@ const FIREBASE_MESSAGES: Record<string, string> = {
   unauthenticated: 'Sua sessão expirou. Faça login novamente.',
 };
 
-/** Códigos retornados pela API de notificações/grupos. */
 const API_MESSAGES: Record<string, string> = {
   GROUP_FULL: 'O grupo atingiu o limite de integrantes.',
   LIMIT_BELOW_MEMBERS: 'O limite não pode ser menor que a quantidade atual de integrantes.',
@@ -56,10 +52,6 @@ function getApiErrorCode(data: unknown): string | null {
   return null;
 }
 
-/**
- * Converte qualquer erro em uma mensagem compreensível, sem expor
- * detalhes internos, stack traces ou credenciais.
- */
 export function getErrorMessage(error: unknown, fallback = 'Ocorreu um erro inesperado.'): string {
   if (error instanceof AppError) {
     return error.message;
@@ -91,7 +83,6 @@ export function getErrorMessage(error: unknown, fallback = 'Ocorreu um erro ines
     return fallback;
   }
 
-  // Erros do Realtime Database chegam como Error com "PERMISSION_DENIED" na mensagem.
   if (error instanceof Error && error.message.includes('PERMISSION_DENIED')) {
     return 'Você não tem permissão para acessar esta conversa.';
   }

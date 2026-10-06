@@ -1,9 +1,3 @@
-/**
- * Cria usuários de demonstração no Firebase Emulator Suite (somente local).
- * Uso: com os emuladores rodando, `npm run seed` dentro de tests/rules.
- *
- * Senha de todos os usuários de demonstração: demo1234
- */
 import { adminAuth, closeAdminApp, firestore } from '../../server/src/services/firebaseAdmin.js';
 
 process.env.FIRESTORE_EMULATOR_HOST ??= '127.0.0.1:8080';

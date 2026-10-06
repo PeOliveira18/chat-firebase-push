@@ -10,10 +10,6 @@ import { useSubscription } from './useSubscription';
 
 const NO_DIRECTS: DirectConversation[] = [];
 
-/**
- * Lista unificada de conversas individuais (Firestore: directConversations)
- * e grupos (Firestore: groups), atualizada em tempo real.
- */
 export function useConversations(uid: string) {
   const { groups, loading: groupsLoading, error: groupsError } = useMyGroups(uid);
   const {
@@ -27,7 +23,6 @@ export function useConversations(uid: string) {
     [directs, uid],
   );
 
-  // Nome e foto dos outros participantes das conversas individuais.
   const { profilesById } = usePublicProfiles(otherIds);
 
   const conversations = useMemo<ConversationSummary[]>(() => {

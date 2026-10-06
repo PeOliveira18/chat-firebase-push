@@ -2,7 +2,6 @@ import { Router } from 'express';
 
 export const healthRouter = Router();
 
-/** Health check público para verificar a disponibilidade da API. */
 healthRouter.get('/health', (_req, res) => {
   res.json({
     status: 'ok',

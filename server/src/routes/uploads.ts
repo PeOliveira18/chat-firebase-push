@@ -21,10 +21,6 @@ function parseTarget(body: unknown): UploadTarget {
   throw badRequest('Destino de upload inválido.');
 }
 
-/**
- * POST /uploads/signature — { target: "avatar" } | { target: "group", groupId }
- * Retorna os parâmetros assinados para enviar a foto ao Cloudinary.
- */
 uploadsRouter.post('/uploads/signature', authenticate, async (req, res) => {
   const signature = await createUploadSignature(getAuthenticatedUid(res), parseTarget(req.body));
   res.json(signature);

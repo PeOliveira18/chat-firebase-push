@@ -3,10 +3,6 @@ import { NextFunction, Request, Response } from 'express';
 import { adminAuth } from '../services/firebaseAdmin.js';
 import { HttpError } from '../utils/httpError.js';
 
-/**
- * Valida o Firebase ID Token enviado em "Authorization: Bearer <token>"
- * com o Firebase Admin SDK e disponibiliza o uid em res.locals.uid.
- */
 export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
   const header = req.header('authorization') ?? '';
   const match = /^Bearer (.+)$/.exec(header);
@@ -17,16 +13,40 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    // checkRevoked = true: sessões encerradas/revogadas não são aceitas.
     const decoded = await adminAuth().verifyIdToken(match[1], true);
     res.locals.uid = decoded.uid;
     next();
-  } catch {
-    next(new HttpError(401, 'INVALID_TOKEN', 'Token de autenticação inválido ou expirado.'));
+  } catch (error) {
+    const code = getErrorCode(error);
+
+    console.error('[auth] token recusado', code ?? 'sem código', error instanceof Error ? error.message : error);
+
+    if (code && TOKEN_ERROR_CODES.has(code)) {
+      next(new HttpError(401, 'INVALID_TOKEN', 'Token de autenticação inválido ou expirado.'));
+      return;
+    }
+
+    next(new HttpError(503, 'AUTH_UNAVAILABLE', 'Não foi possível validar a sessão no servidor.'));
   }
 }
 
-/** Lê o uid autenticado definido pelo middleware. */
+const TOKEN_ERROR_CODES = new Set([
+  'auth/argument-error',
+  'auth/invalid-id-token',
+  'auth/id-token-expired',
+  'auth/id-token-revoked',
+  'auth/user-disabled',
+  'auth/user-not-found',
+]);
+
+function getErrorCode(error: unknown): string | null {
+  if (typeof error === 'object' && error !== null && 'code' in error && typeof error.code === 'string') {
+    return error.code;
+  }
+
+  return null;
+}
+
 export function getAuthenticatedUid(res: Response): string {
   const uid: unknown = res.locals.uid;
 

@@ -6,10 +6,6 @@ import { addMembers, createGroup, removeMember } from '../../server/src/services
 import { notifyMessage } from '../../server/src/services/messageNotifier.js';
 import { HttpError } from '../../server/src/utils/httpError.js';
 
-/**
- * Testes de integração da API usando o Firebase Emulator Suite
- * (Firebase Admin SDK apontando para os emuladores).
- */
 const users = ['u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7'];
 
 function codeOf(result: PromiseSettledResult<unknown>): string {
@@ -47,7 +43,6 @@ describe('Limite do grupo sob concorrência', () => {
       notificationPolicy: 'all_group_messages',
     });
 
-    // 5 requisições concorrentes disputando 1 única vaga.
     const results = await Promise.allSettled(
       ['u3', 'u4', 'u5', 'u6', 'u7'].map((uid) => addMembers('u1', groupId, [uid])),
     );
@@ -104,7 +99,6 @@ describe('Limite do grupo sob concorrência', () => {
     const mirror = await rtdb().ref(`groupMembers/${groupId}/u3`).get();
     assert.equal(mirror.exists(), false);
 
-    // O vínculo deixa de citar este grupo (pode existir por outro grupo em comum).
     const link = await firestore().collection('userLinks').doc('u1_u3').get();
     const groupIds: unknown = link.get('groupIds');
     assert.ok(!link.exists || (Array.isArray(groupIds) && !groupIds.includes(groupId)));

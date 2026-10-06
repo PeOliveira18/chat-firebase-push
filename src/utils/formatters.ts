@@ -1,5 +1,3 @@
-/** Validações e máscaras usadas nos formulários. */
-
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function isValidEmail(email: string): boolean {
@@ -10,7 +8,6 @@ export function onlyDigits(value: string): string {
   return value.replace(/\D/g, '');
 }
 
-/** Formata o celular como (11) 98765-4321. */
 export function maskPhone(value: string): string {
   const digits = onlyDigits(value).slice(0, 11);
 
@@ -30,7 +27,6 @@ export function isValidPhone(value: string): boolean {
   return digits.length === 10 || digits.length === 11;
 }
 
-/** Formata a data como DD/MM/AAAA. */
 export function maskBirthDate(value: string): string {
   const digits = onlyDigits(value).slice(0, 8);
 
@@ -91,7 +87,6 @@ export function getInitials(name: string): string {
   return `${first}${last}`.toUpperCase();
 }
 
-/** Exibe um valor ou um texto padrão para campos indisponíveis. */
 export function displayValue(value: string, fallback = 'Não informado'): string {
   return value.trim() ? value : fallback;
 }

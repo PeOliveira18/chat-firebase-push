@@ -3,10 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { getPublicProfiles } from '../services/userService';
 import { PublicProfile } from '../types/user';
 
-/**
- * Carrega nome/foto (perfil público) de uma lista de usuários, mantendo um
- * cache local para não buscar novamente quem já foi carregado.
- */
 export function usePublicProfiles(uids: string[]) {
   const [cache, setCache] = useState<Record<string, PublicProfile>>({});
 
@@ -38,9 +34,7 @@ export function usePublicProfiles(uids: string[]) {
           });
         }
       })
-      .catch(() => {
-        // Perfis indisponíveis são exibidos com nome genérico.
-      });
+      .catch(() => {});
 
     return () => {
       active = false;

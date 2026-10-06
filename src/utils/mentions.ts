@@ -1,9 +1,5 @@
 import { PublicProfile } from '../types/user';
 
-/**
- * Retorna os `uid` dos integrantes mencionados no texto com "@Nome".
- * A comparação ignora maiúsculas/minúsculas e o próprio remetente.
- */
 export function extractMentionedUserIds(
   text: string,
   members: PublicProfile[],
@@ -17,7 +13,6 @@ export function extractMentionedUserIds(
     .map((member) => member.uid);
 }
 
-/** Retorna o termo digitado após o último "@", se o usuário estiver mencionando alguém. */
 export function getMentionQuery(text: string): string | null {
   const match = /@([^@\n]*)$/.exec(text);
 
@@ -27,7 +22,6 @@ export function getMentionQuery(text: string): string | null {
 
   const query = match[1];
 
-  // Encerra a sugestão quando o termo fica longo demais (provavelmente texto normal).
   return query.length <= 30 ? query : null;
 }
 

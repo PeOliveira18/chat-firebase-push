@@ -30,7 +30,6 @@ export type DeviceRegistration = {
   updatedAt: number;
 };
 
-/** Dados enviados no payload do push pela API. */
 export type NotificationData = {
   conversationId: string;
   conversationType: ConversationType;

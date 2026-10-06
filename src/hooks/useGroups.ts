@@ -18,7 +18,6 @@ import { useSubscription } from './useSubscription';
 const NO_GROUPS: ChatGroup[] = [];
 const NO_MEMBER_IDS: string[] = [];
 
-/** Grupos dos quais o usuário participa (tempo real). */
 export function useMyGroups(uid: string) {
   const { data, loading, error } = useSubscription(uid, observeMyGroups, NO_GROUPS);
 
@@ -29,7 +28,6 @@ export function useMyGroups(uid: string) {
   };
 }
 
-/** Um grupo específico, seus integrantes e as ações de gerenciamento. */
 export function useGroup(groupId: string | undefined, currentUid: string) {
   const { data: group, loading, error: listenerError } = useSubscription<ChatGroup | null>(
     groupId ?? null,
@@ -37,7 +35,6 @@ export function useGroup(groupId: string | undefined, currentUid: string) {
     null,
   );
 
-  // Usuário removido do grupo perde a permissão de leitura.
   const accessRevoked = listenerError !== null && isPermissionError(listenerError);
 
   let error: string | null = null;

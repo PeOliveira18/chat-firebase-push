@@ -5,11 +5,6 @@ import { Firestore, getFirestore } from 'firebase-admin/firestore';
 
 import { getFirebaseEnv } from '../config/env.js';
 
-/**
- * Firebase Admin SDK inicializado com a conta de serviço lida das variáveis
- * de ambiente da hospedagem. A inicialização é preguiçosa para permitir
- * testes unitários sem credenciais.
- */
 let app: App | null = null;
 
 function getAdminApp(): App {
@@ -24,7 +19,6 @@ function getAdminApp(): App {
     return app;
   }
 
-  // Testes locais com o Firebase Emulator Suite (sem credenciais reais).
   if (process.env.FIRESTORE_EMULATOR_HOST && process.env.FIREBASE_DATABASE_EMULATOR_HOST) {
     const projectId = process.env.FIREBASE_PROJECT_ID ?? 'demo-chat';
     app = initializeApp({
@@ -60,7 +54,6 @@ export function rtdb(): Database {
   return getDatabase(getAdminApp());
 }
 
-/** Encerra as conexões do Admin SDK (desligamento do servidor e testes). */
 export async function closeAdminApp(): Promise<void> {
   if (app) {
     await deleteApp(app);

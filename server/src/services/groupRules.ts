@@ -1,6 +1,5 @@
 import { badRequest, conflict } from '../utils/httpError.js';
 
-/** Regras puras de capacidade do grupo (usadas dentro das transações). */
 export const MIN_GROUP_MEMBERS = 2;
 export const MAX_MEMBER_LIMIT = 50;
 export const MAX_GROUP_NAME_LENGTH = 60;
@@ -18,7 +17,6 @@ export function assertValidLimit(limit: unknown): asserts limit is number {
   }
 }
 
-/** O limite não pode ficar menor que a quantidade atual de integrantes. */
 export function assertLimitCoversMembers(limit: number, memberCount: number): void {
   if (limit < memberCount) {
     throw conflict(
@@ -28,10 +26,6 @@ export function assertLimitCoversMembers(limit: number, memberCount: number): vo
   }
 }
 
-/**
- * Retorna os novos integrantes (sem duplicados) e falha se a entrada
- * ultrapassar o limite configurado.
- */
 export function computeMembersAfterAdd(currentIds: string[], requestedIds: string[], limit: number): string[] {
   const current = new Set(currentIds);
   const toAdd = Array.from(new Set(requestedIds)).filter((id) => !current.has(id));

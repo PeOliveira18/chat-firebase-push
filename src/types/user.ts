@@ -8,11 +8,6 @@ export type ChatUser = {
   createdAt: number;
 };
 
-/**
- * Dados mínimos visíveis a qualquer usuário autenticado (lista de usuários).
- * Os dados cadastrais completos ficam em `users/{uid}` e só são liberados para
- * quem compartilha uma conversa ou grupo.
- */
 export type PublicProfile = {
   uid: string;
   name: string;

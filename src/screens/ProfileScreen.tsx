@@ -21,10 +21,6 @@ type ProfileResult = {
   error: string | null;
 };
 
-/**
- * Dados cadastrais completos. As regras do Firestore só liberam a leitura
- * para o próprio usuário ou para quem compartilha uma conversa/grupo.
- */
 export function ProfileScreen({ navigation, route }: Props) {
   const { uid } = route.params;
   const currentUser = useCurrentUser();
@@ -32,7 +28,6 @@ export function ProfileScreen({ navigation, route }: Props) {
 
   const [result, setResult] = useState<ProfileResult | null>(null);
 
-  // Busca os dados de outro usuário; o resultado fica associado ao uid consultado.
   useEffect(() => {
     if (isMe) {
       return undefined;
@@ -67,7 +62,6 @@ export function ProfileScreen({ navigation, route }: Props) {
   const loading = !isMe && !currentResult;
   const error = currentResult?.error ?? null;
 
-  // O próprio perfil já está disponível no contexto de autenticação.
   const profile = isMe ? currentUser : (currentResult?.profile ?? null);
 
   useEffect(() => {

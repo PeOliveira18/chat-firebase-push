@@ -39,7 +39,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [initializing, setInitializing] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // Recupera a sessão persistida e observa login/logout.
   useEffect(() => {
     const unsubscribe = observeAuthState((currentUser) => {
       setFirebaseUser(currentUser);
@@ -49,7 +48,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return unsubscribe;
   }, []);
 
-  // Escuta o perfil do usuário autenticado no Firestore (removido no logout).
   const profile = useSubscription<ChatUser | null>(firebaseUser?.uid ?? null, observeUserProfile, null);
   const user = firebaseUser ? profile.data : null;
 
@@ -83,12 +81,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = useCallback(async () => {
     if (firebaseUser) {
-      // Para de receber push neste aparelho antes de encerrar a sessão.
       await disableCurrentDevice(firebaseUser.uid);
     }
 
-    // Ao encerrar a sessão, o navegador desmonta as telas protegidas e
-    // todos os listeners (Firestore e RTDB) são removidos nos cleanups.
     await logout();
   }, [firebaseUser]);
 

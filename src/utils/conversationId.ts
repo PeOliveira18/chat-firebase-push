@@ -1,13 +1,6 @@
 import { ConversationType } from '../types/chat';
 import { AppError } from './errorMessages';
 
-/**
- * Conversas individuais usam como ID os dois `uid` ordenados e separados por "_".
- * Assim o mesmo par de usuários sempre gera o mesmo ID e não existem conversas duplicadas.
- *
- * Os `uid` do Firebase Authentication e os IDs automáticos do Firestore não possuem "_",
- * então o separador também diferencia conversas individuais de grupos.
- */
 const SEPARATOR = '_';
 
 export function buildDirectConversationId(uidA: string, uidB: string): string {

@@ -1,11 +1,7 @@
 rules_version = '2';
 
-// Cloud Firestore: perfis, grupos, conversas individuais, tokens de dispositivos.
-// Operações que alteram integrantes/limite dos grupos são feitas SOMENTE pela API
-// (Firebase Admin SDK ignora estas regras e usa transações).
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function signedIn() {
       return request.auth != null;
     }
@@ -18,7 +14,6 @@ service cloud.firestore {
       return value is string && value.size() >= minSize && value.size() <= maxSize;
     }
 
-    // Fotos no Cloudinary: somente a URL final é armazenada.
     function isPhotoUrl(value) {
       return value is string
         && (value == '' || value.matches('^https://res[.]cloudinary[.]com/.*'));
@@ -28,13 +23,11 @@ service cloud.firestore {
       return value in ['all_group_messages', 'mentioned_members', 'direct_messages_only', 'disabled'];
     }
 
-    // Existe uma conversa individual entre o usuário autenticado e "uid".
     function sharesDirectConversation(uid) {
       return exists(/databases/$(database)/documents/directConversations/$(request.auth.uid + '_' + uid))
         || exists(/databases/$(database)/documents/directConversations/$(uid + '_' + request.auth.uid));
     }
 
-    // Existe um grupo em comum (vínculo mantido pela API).
     function sharesGroup(uid) {
       return exists(/databases/$(database)/documents/userLinks/$(request.auth.uid + '_' + uid));
     }
@@ -74,7 +67,6 @@ service cloud.firestore {
         && data.createdAt is int;
     }
 
-    // Dados cadastrais: somente o próprio usuário ou quem compartilha conversa/grupo.
     match /users/{uid} {
       allow get: if isSelf(uid) || (signedIn() && (sharesDirectConversation(uid) || sharesGroup(uid)));
       allow list: if false;
@@ -85,14 +77,12 @@ service cloud.firestore {
         && request.resource.data.createdAt == resource.data.createdAt;
       allow delete: if false;
 
-      // Tokens de push: privados, apenas o dono lê e grava.
       match /devices/{deviceId} {
         allow read, delete: if isSelf(uid);
         allow create, update: if isSelf(uid) && validDevice();
       }
     }
 
-    // Nome e foto: visíveis a usuários autenticados (lista/busca de usuários).
     match /publicProfiles/{uid} {
       allow read: if signedIn();
       allow create, update: if isSelf(uid)
@@ -103,8 +93,6 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Grupos: somente integrantes leem; somente o proprietário altera nome, foto e política.
-    // memberIds e memberLimit só podem ser alterados pela API (transação).
     match /groups/{groupId} {
       allow read: if signedIn() && request.auth.uid in resource.data.memberIds;
       allow update: if signedIn()
@@ -118,7 +106,6 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
-    // Conversas individuais: ID = uids ordenados (impede duplicidade).
     match /directConversations/{conversationId} {
       allow get: if signedIn() && request.auth.uid in conversationId.split('_');
       allow list: if signedIn() && request.auth.uid in resource.data.participantIds;
@@ -126,7 +113,6 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Mantidos exclusivamente pela API.
     match /userLinks/{linkId} {
       allow read, write: if false;
     }

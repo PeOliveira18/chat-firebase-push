@@ -12,7 +12,6 @@ import { uploadsRouter } from './routes/uploads.js';
 export function createApp() {
   const app = express();
 
-  // Render (e outras hospedagens) ficam atrás de um proxy HTTPS.
   app.set('trust proxy', 1);
 
   app.use(helmet());

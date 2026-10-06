@@ -17,9 +17,6 @@ export type RegisterResult = {
   photoUploadFailed: boolean;
 };
 
-/**
- * Cadastro com e-mail e senha + perfil no Firestore + foto no Storage.
- */
 export async function register(data: RegisterData): Promise<RegisterResult> {
   const credential = await createUserWithEmailAndPassword(
     auth,
@@ -35,7 +32,6 @@ export async function register(data: RegisterData): Promise<RegisterResult> {
     try {
       photoUrl = await uploadImage(data.photoUri, { type: 'avatar' });
     } catch {
-      // A conta continua válida; a interface exibirá a imagem padrão.
       photoUploadFailed = true;
     }
   }

@@ -7,7 +7,6 @@ import { Avatar } from './Avatar';
 
 type ImagePickerFieldProps = {
   label: string;
-  /** URI local escolhida ou URL já salva. */
   uri: string;
   variant?: 'user' | 'group';
   disabled?: boolean;

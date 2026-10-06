@@ -25,7 +25,6 @@ export type SendMessageParams = {
 const NO_MESSAGES: ChatMessage[] = [];
 
 export function useChat({ conversationId, conversationType, senderId }: UseChatParams) {
-  // Listener em tempo real; removido ao desmontar a tela ou trocar de conversa.
   const {
     data: messages,
     loading,
@@ -64,15 +63,12 @@ export function useChat({ conversationId, conversationType, senderId }: UseChatP
         throw sendError;
       }
 
-      // A mensagem já foi persistida; uma falha no push não desfaz o envio.
-      try {
-        setPushWarning(null);
-        await requestMessagePush(conversationId, message.id);
-      } catch (pushError) {
+      setPushWarning(null);
+      requestMessagePush(conversationId, message.id).catch((pushError: unknown) => {
         setPushWarning(
           getErrorMessage(pushError, 'Mensagem enviada, mas a notificação não pôde ser disparada.'),
         );
-      }
+      });
     },
     [conversationId, conversationType, senderId],
   );
@@ -111,7 +107,6 @@ export function useChat({ conversationId, conversationType, senderId }: UseChatP
     setPending((current) => current.filter((item) => item.id !== messageId));
   }, []);
 
-  // Mensagens persistidas + pendentes/falhas locais, sem duplicar IDs.
   const displayMessages = useMemo<DisplayMessage[]>(() => {
     const persistedIds = new Set(messages.map((message) => message.id));
     const persisted: DisplayMessage[] = messages.map((message) => ({ ...message, status: 'sent' }));

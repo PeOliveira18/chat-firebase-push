@@ -14,12 +14,7 @@ type AvatarProps = {
   accessibilityLabel?: string;
 };
 
-/**
- * Exibe a foto do usuário/grupo. Quando a URL estiver vazia ou falhar ao
- * carregar, mostra a imagem padrão.
- */
 export function Avatar({ uri, size = 48, variant = 'user', onPress, accessibilityLabel }: AvatarProps) {
-  // Guarda qual URL falhou: ao trocar a URL, a nova imagem é tentada novamente.
   const [failedUri, setFailedUri] = useState<string | null>(null);
   const failed = failedUri === uri;
 

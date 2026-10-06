@@ -17,10 +17,6 @@ import { parseChatUser, parsePublicProfile } from '../utils/parsers';
 const USERS_COLLECTION = 'users';
 const PUBLIC_PROFILES_COLLECTION = 'publicProfiles';
 
-/**
- * Cria o perfil completo (privado) e o perfil público do usuário,
- * ambos usando o `uid` do Firebase Authentication como ID do documento.
- */
 export async function createUserProfile(user: ChatUser): Promise<void> {
   const batch = writeBatch(db);
 
@@ -52,10 +48,6 @@ export function observeUserProfile(
   );
 }
 
-/**
- * Lê os dados cadastrais completos. As regras do Firestore só permitem a leitura
- * para o próprio usuário ou para quem compartilha uma conversa/grupo com ele.
- */
 export async function getUserProfile(uid: string): Promise<ChatUser | null> {
   const snapshot = await getDoc(doc(db, USERS_COLLECTION, uid));
   const data = snapshot.data();

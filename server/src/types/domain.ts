@@ -1,5 +1,3 @@
-/** Tipos compartilhados com o aplicativo (mesmo formato gravado no Firebase). */
-
 export type ConversationType = 'direct' | 'group';
 
 export type NotificationPolicy =

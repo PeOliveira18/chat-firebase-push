@@ -13,7 +13,6 @@ export function useAuth(): AuthContextData {
   return context;
 }
 
-/** Usuário autenticado (somente em telas protegidas). */
 export function useCurrentUser(): ChatUser {
   const { user } = useAuth();
 

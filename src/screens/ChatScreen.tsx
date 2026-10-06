@@ -41,7 +41,6 @@ export function ChatScreen({ navigation, route }: Props) {
   const title = isGroup ? (group?.name ?? 'Grupo') : (otherProfile?.name ?? 'Conversa');
   const photoUrl = isGroup ? (group?.photoUrl ?? '') : (otherProfile?.photoUrl ?? '');
 
-  // Foto no cabeçalho: abre o perfil (individual) ou a lista de integrantes (grupo).
   const openDetails = useCallback(() => {
     if (isGroup) {
       navigation.navigate('GroupMembers', { groupId: conversationId });
@@ -90,7 +89,6 @@ export function ChatScreen({ navigation, route }: Props) {
     return map;
   }, [members]);
 
-  // FlatList invertida: a mensagem mais recente fica junto ao campo de texto.
   const invertedMessages = useMemo(() => [...chat.messages].reverse(), [chat.messages]);
 
   const handleSend = useCallback(

@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -29,21 +28,14 @@ export type ChatInputPayload = {
 type ChatInputProps = {
   currentUid: string;
   isGroup: boolean;
-  /** Integrantes do grupo (vazio em conversas individuais). */
   members: PublicProfile[];
   disabled?: boolean;
   onSend: (payload: ChatInputPayload) => Promise<void>;
 };
 
-/**
- * Campo de mensagem. Em grupos permite:
- * - mencionar integrantes digitando "@";
- * - escolher explicitamente um destinatário (mensagem direcionada).
- */
 export function ChatInput({ currentUid, isGroup, members, disabled = false, onSend }: ChatInputProps) {
   const [text, setText] = useState('');
   const [targetId, setTargetId] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
 
   const otherMembers = useMemo(
     () => members.filter((member) => member.uid !== currentUid),
@@ -68,35 +60,27 @@ export function ChatInput({ currentUid, isGroup, members, disabled = false, onSe
     setText((current) => insertMention(current, member.name));
   }, []);
 
-  const handleSend = useCallback(async () => {
+  const handleSend = useCallback(() => {
     const trimmed = text.trim();
 
-    if (!trimmed || sending) {
+    if (!trimmed) {
       return;
     }
 
     const mentioned = extractMentionedUserIds(trimmed, otherMembers, currentUid);
     const target: MessageTarget = targetId ? { type: 'member', memberId: targetId } : { type: 'conversation' };
 
-    setSending(true);
+    setText('');
+    setTargetId(null);
 
-    try {
-      await onSend({
-        text: trimmed,
-        target,
-        mentionedUserIds: mergeUniqueIds(mentioned, targetId ? [targetId] : []),
-      });
-      setText('');
-      setTargetId(null);
-    } catch {
-      // A falha é exibida na própria mensagem (com opção de reenviar).
-      setText('');
-    } finally {
-      setSending(false);
-    }
-  }, [text, sending, otherMembers, currentUid, targetId, onSend]);
+    onSend({
+      text: trimmed,
+      target,
+      mentionedUserIds: mergeUniqueIds(mentioned, targetId ? [targetId] : []),
+    }).catch(() => {});
+  }, [text, otherMembers, currentUid, targetId, onSend]);
 
-  const canSend = text.trim().length > 0 && !disabled && !sending;
+  const canSend = text.trim().length > 0 && !disabled;
 
   return (
     <View style={styles.container}>
@@ -154,11 +138,7 @@ export function ChatInput({ currentUid, isGroup, members, disabled = false, onSe
           accessibilityRole="button"
           accessibilityLabel="Enviar mensagem"
         >
-          {sending ? (
-            <ActivityIndicator color={theme.colors.textOnPrimary} />
-          ) : (
-            <Text style={styles.sendText}>Enviar</Text>
-          )}
+          <Text style={styles.sendText}>Enviar</Text>
         </Pressable>
       </View>
     </View>

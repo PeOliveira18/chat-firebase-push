@@ -2,15 +2,8 @@
 import { existsSync } from 'fs';
 import type { ExpoConfig } from 'expo/config';
 
-/**
- * Configuração do Expo.
- *
- * O arquivo google-services.json (Android/FCM) só é referenciado quando existe,
- * para que `npx expo start` funcione antes da configuração do Firebase.
- */
 const ANDROID_PACKAGE = 'br.com.fiap.chatfirebasepush';
 const IOS_BUNDLE_ID = 'br.com.fiap.chatfirebasepush';
-// Projeto EAS @pe.oliveira/chat-firebase-push (necessário para o token de push).
 const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID ?? '38e49d5c-e52e-4d94-a883-c0ad4d9a7f53';
 
 const hasGoogleServices = existsSync('./google-services.json');

@@ -86,13 +86,11 @@ export function UsersScreen({ navigation, route }: Props) {
       return;
     }
 
-    // Criação: devolve a seleção ao formulário do grupo.
     if (!params.groupId) {
       navigation.popTo('GroupForm', { selectedMemberIds: selectedIds });
       return;
     }
 
-    // Edição: adiciona pela API (transação que respeita o limite) e volta.
     if (selectedIds.length === 0) {
       navigation.goBack();
       return;

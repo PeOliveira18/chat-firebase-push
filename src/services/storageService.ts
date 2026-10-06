@@ -4,15 +4,6 @@ import { AppError } from '../utils/errorMessages';
 import { asNumber, asString, isRecord } from '../utils/parsers';
 import { api } from './api';
 
-/**
- * Armazenamento das fotos de perfil e de grupo no Cloudinary (plano gratuito).
- *
- * 1. O app pede à API uma assinatura de upload (autenticada com o Firebase ID Token);
- * 2. envia a imagem direto ao Cloudinary com essa assinatura;
- * 3. salva no Firestore apenas a URL final (nunca a imagem em Base64).
- *
- * O segredo do Cloudinary fica somente nas variáveis da API hospedada.
- */
 export type UploadTarget = { type: 'avatar' } | { type: 'group'; groupId: string };
 
 type UploadSignature = {
@@ -50,7 +41,6 @@ async function appendFile(form: FormData, uri: string): Promise<void> {
     return;
   }
 
-  // No React Native o FormData aceita a referência ao arquivo local.
   const file = { uri, name: 'photo.jpg', type: 'image/jpeg' };
   form.append('file', file as unknown as Blob);
 }

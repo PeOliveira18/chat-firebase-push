@@ -1,9 +1,5 @@
 import { Alert, Platform } from 'react-native';
 
-/**
- * Diálogos multiplataforma. No react-native-web o Alert.alert não exibe nada,
- * então na web são usados os diálogos nativos do navegador.
- */
 export function showAlert(title: string, message: string): void {
   if (Platform.OS === 'web') {
     window.alert(`${title}\n\n${message}`);

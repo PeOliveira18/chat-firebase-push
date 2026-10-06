@@ -24,7 +24,6 @@ export type ChatMessage = {
 
 export type MessageStatus = 'sent' | 'sending' | 'failed';
 
-/** Mensagem exibida na tela: persistida no RTDB ou pendente/falha local. */
 export type DisplayMessage = ChatMessage & {
   status: MessageStatus;
 };
@@ -38,7 +37,6 @@ export type SendMessageInput = {
   mentionedUserIds: string[];
 };
 
-/** Item da lista de conversas (individual ou grupo). */
 export type ConversationSummary = {
   id: string;
   type: ConversationType;

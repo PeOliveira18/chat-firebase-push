@@ -6,7 +6,6 @@ export type ImagePickResult =
   | { status: 'canceled' }
   | { status: 'denied' };
 
-/** Seleção de imagem da galeria com tratamento de permissão. */
 export function useImagePicker() {
   const [picking, setPicking] = useState(false);
 

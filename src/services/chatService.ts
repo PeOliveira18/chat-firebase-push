@@ -45,11 +45,6 @@ function toDirectConversation(id: string, data: Record<string, unknown>): Direct
   };
 }
 
-/**
- * Cria ou localiza a conversa individual entre dois usuários.
- * O ID determinístico + transação garantem que nunca existam duas conversas
- * para o mesmo par, mesmo que ambos iniciem a conversa ao mesmo tempo.
- */
 export async function findOrCreateDirectConversation(
   myUid: string,
   otherUid: string,
@@ -111,9 +106,6 @@ export function observeDirectConversations(
   );
 }
 
-/**
- * Persiste a mensagem no Realtime Database e devolve o ID gerado.
- */
 export async function sendMessage(input: SendMessageInput, messageId?: string): Promise<string> {
   const text = input.text.trim();
 
@@ -148,7 +140,6 @@ export async function sendMessage(input: SendMessageInput, messageId?: string): 
   return messageRef.key;
 }
 
-/** Gera um ID de mensagem antes do envio (usado para reenvio sem duplicar). */
 export function createMessageId(conversationId: string): string {
   const key = push(ref(rtdb, `${MESSAGES_PATH}/${conversationId}`)).key;
 
@@ -159,10 +150,6 @@ export function createMessageId(conversationId: string): string {
   return key;
 }
 
-/**
- * Escuta as últimas mensagens da conversa em tempo real (Realtime Database).
- * Retorna a função que remove o listener (chamada no cleanup do useEffect).
- */
 export function observeMessages(
   conversationId: string,
   onNext: (messages: ChatMessage[]) => void,
@@ -179,7 +166,6 @@ export function observeMessages(
     (snapshot) => {
       const messages: ChatMessage[] = [];
 
-      // forEach percorre os filhos na ordem da query (createdAt crescente).
       snapshot.forEach((child) => {
         const value: unknown = child.val();
         const message = child.key ? parseMessage(conversationId, child.key, value) : null;

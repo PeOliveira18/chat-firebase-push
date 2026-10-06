@@ -6,16 +6,12 @@ export type UsersScreenParams =
   | { mode: 'direct' }
   | {
       mode: 'selectMembers';
-      /** Grupo em edição (ausente durante a criação). */
       groupId?: string;
       selectedIds: string[];
-      /** Usuários que não podem ser selecionados (já são integrantes). */
       excludedIds: string[];
-      /** Quantidade máxima que ainda pode ser selecionada (vagas). */
       maxSelectable: number | null;
     };
 
-/** Definição central das rotas e parâmetros. */
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;

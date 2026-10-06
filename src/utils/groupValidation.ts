@@ -1,10 +1,5 @@
 import { ChatGroup } from '../types/group';
 
-/**
- * Regras de capacidade do grupo (validação de interface).
- * As mesmas regras são aplicadas novamente pela API dentro de uma transação
- * do Firestore, que é quem realmente impede o estouro do limite.
- */
 export const MIN_GROUP_MEMBERS = 2;
 export const MAX_MEMBER_LIMIT = 50;
 export const MAX_GROUP_NAME_LENGTH = 60;
@@ -53,7 +48,6 @@ export function validateGroupName(name: string): string | null {
   return null;
 }
 
-/** Valida a seleção inicial (o proprietário conta como integrante). */
 export function validateInitialMembers(selectedIds: string[], memberLimit: number | null): string | null {
   const total = selectedIds.length + 1;
 

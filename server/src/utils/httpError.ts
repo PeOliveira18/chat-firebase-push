@@ -1,4 +1,3 @@
-/** Erro com status HTTP e código estável (o app traduz o código para o usuário). */
 export class HttpError extends Error {
   readonly status: number;
   readonly code: string;

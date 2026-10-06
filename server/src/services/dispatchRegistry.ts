@@ -1,13 +1,5 @@
 import { firestore } from './firebaseAdmin.js';
 
-/**
- * Proteção contra chamadas duplicadas.
- *
- * Cada par conversationId/messageId gera um documento em
- * notificationDispatches. A criação usa `create()`, que falha de forma
- * atômica se o documento já existir: uma requisição reenviada (ou
- * concorrente) não produz notificações repetidas.
- */
 const COLLECTION = 'notificationDispatches';
 const ALREADY_EXISTS = 6;
 
@@ -52,7 +44,6 @@ export async function completeDispatch(
   await dispatchRef(conversationId, messageId).update({ ...details, completedAt: Date.now() });
 }
 
-/** Libera a reserva quando nada foi enviado, permitindo uma nova tentativa. */
 export async function releaseDispatch(conversationId: string, messageId: string): Promise<void> {
   await dispatchRef(conversationId, messageId).delete();
 }

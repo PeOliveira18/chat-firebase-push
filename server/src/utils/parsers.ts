@@ -85,7 +85,6 @@ export function parseGroup(id: string, data: UnknownRecord): GroupData {
   };
 }
 
-/** IDs do Firebase (uid, push id, auto id): letras, números, "-" e "_". */
 const ID_REGEX = /^[A-Za-z0-9_-]{1,128}$/;
 
 export function isValidId(value: unknown): value is string {

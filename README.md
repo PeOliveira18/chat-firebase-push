@@ -1,4 +1,4 @@
-# 💬 Chat Firebase Push
+# Chat Firebase Push
 
 Aplicativo de **chat em React Native + TypeScript** com conversas individuais e em grupo, autenticação por **e-mail e senha**, mensagens em **tempo real** e **notificações push** enviadas por uma **API própria publicada na internet**.
 
@@ -6,16 +6,15 @@ Trabalho de React Native — *Chat individual e em grupo com Firebase e Push Not
 
 ---
 
-## 👥 Integrantes
+## Integrantes
 
-> ⚠️ Preencher antes da entrega (obrigatório — máximo de cinco integrantes).
-
-- RM00000 — Nome completo
-- RM00000 — Nome completo
+- RM99943 — Pedro Oliveira
+- RM557817 — Diego Cabral
+- RM555694 - Debora Ivanowski
 
 ---
 
-## 🧰 Tecnologias
+## Tecnologias
 
 | Camada | Tecnologia |
 |---|---|
@@ -32,7 +31,7 @@ Trabalho de React Native — *Chat individual e em grupo com Firebase e Push Not
 
 ---
 
-## 🔥 Serviços Firebase e responsabilidades
+## Serviços Firebase e responsabilidades
 
 | Serviço | Responsabilidade |
 |---|---|
@@ -70,7 +69,7 @@ groupMembers/{groupId}/{uid}: true        (espelho de integrantes ativos, escrit
 
 ---
 
-## 📁 Estrutura do projeto
+## Estrutura do projeto
 
 ```text
 chat-firebase-push/
@@ -116,7 +115,7 @@ Screen → Hook → Service → Firebase SDK / API
 
 ---
 
-## ▶️ Instalação e execução do app
+## Instalação e execução do app
 
 Pré-requisitos: Node.js 20+, conta Expo (EAS) e um projeto Firebase configurado (ver abaixo).
 
@@ -144,7 +143,7 @@ npm run test:rules  # regras + integração no Firebase Emulator (requer Java)
 
 ---
 
-## 🔧 Configuração do Firebase
+## Configuração do Firebase
 
 Projeto utilizado: **`cp2-mobile-bb2a8`** (plano Spark, sem custos).
 
@@ -164,7 +163,7 @@ npx firebase-tools deploy --only firestore:rules,database
 
 ---
 
-## 🖼️ Armazenamento das fotos
+## Armazenamento das fotos
 
 Serviço escolhido: **[Cloudinary](https://cloudinary.com/)** (plano gratuito, sem cartão), cloud name `grp8nkfh`. O Firebase Storage exige o plano pago Blaze em projetos novos, então não foi usado.
 
@@ -194,7 +193,7 @@ Somente a URL final (https://res.cloudinary.com/...) é salva no Firestore (phot
 
 ---
 
-## 🔔 Configuração das notificações
+## Configuração das notificações
 
 O app usa **Expo Notifications**. O token do aparelho (`ExponentPushToken[...]`) é salvo em `users/{uid}/devices/{deviceId}`; a API envia pelo **Expo Push Service**, que entrega pelo **FCM** (Android) e **APNs** (iOS).
 
@@ -233,7 +232,7 @@ O texto do push não inclui o conteúdo da mensagem (ex.: “Maria enviou uma me
 
 ---
 
-## 📣 Política de notificações
+## Política de notificações
 
 Cada grupo possui `notificationPolicy`, configurável pelo proprietário na tela do grupo:
 
@@ -252,7 +251,7 @@ Tokens inválidos (`DeviceNotRegistered` nos tickets ou recibos do Expo, ou form
 
 ---
 
-## 👥 Limite de integrantes e concorrência
+## Limite de integrantes e concorrência
 
 - `memberLimit` é definido na criação (inteiro entre 2 e 50, incluindo o proprietário), pode ser alterado pelo proprietário e não pode ficar abaixo da quantidade atual de integrantes.
 - A interface mostra “X de Y integrantes · Z vagas disponíveis” e bloqueia a seleção quando não há vagas.
@@ -264,7 +263,7 @@ Teste automatizado (`tests/rules/api.integration.test.ts`): 5 requisições simu
 
 ---
 
-## 🔒 Regras de segurança
+## Regras de segurança
 
 Arquivos versionados: [`firestore.rules`](firestore.rules) e [`database.rules.json`](database.rules.json). As fotos ficam no Cloudinary, protegidas pela assinatura da API.
 
@@ -285,11 +284,11 @@ As regras são testadas no Firebase Emulator (`npm run test:rules`): 19 cenário
 
 ---
 
-## 🌐 API online
+## API online
 
 - **Tecnologia:** Node.js 22 + Express 5 + TypeScript + Firebase Admin SDK + expo-server-sdk
 - **Hospedagem:** Render
-- **URL pública:** `https://chat-firebase-push-api.onrender.com` *(atualizar após o deploy)*
+- **URL pública:** `https://chat-firebase-push-api.onrender.com`
 - **Health check:** `GET https://chat-firebase-push-api.onrender.com/health`
 
 ```bash
@@ -349,15 +348,15 @@ npm run dev
 
 ---
 
-## ⏳ Estados e tratamento de erros
+## Estados e tratamento de erros
 
 O app trata: loading (sessão, perfil, conversas, usuários, mensagens), usuário não autenticado, nenhuma conversa, nenhum usuário, grupo sem vagas, conversa sem mensagens, falha no envio (com **Reenviar/Descartar**), permissão de notificação negada, dispositivo sem token, falha de conectividade, sessão expirada e ações sem permissão. As mensagens de erro são traduzidas em [`src/utils/errorMessages.ts`](src/utils/errorMessages.ts) sem expor detalhes internos.
 
 ---
 
-## 📸 Prints das telas
+## Prints das telas
 
-> Adicionar em `docs/prints/` e referenciar aqui.
+> Capturadas no iOS Simulator (iPhone 17 Pro) com o app rodando no Expo Go.
 
 | Login | Cadastro | Conversas | Chat em grupo |
 |---|---|---|---|
@@ -367,13 +366,15 @@ O app trata: loading (sessão, perfil, conversas, usuários, mensagens), usuári
 |---|---|---|---|
 | ![Usuários](docs/prints/usuarios.png) | ![Grupo](docs/prints/grupo.png) | ![Integrantes](docs/prints/integrantes.png) | ![Perfil](docs/prints/perfil.png) |
 
-### Evidência de notificação recebida
+### Notificação (simulada no iOS Simulator)
 
-![Notificação](docs/prints/notificacao.png)
+O iOS Simulator não recebe push remoto, pois não obtém token do APNs; no iOS, o push real exige dispositivo físico (ver [Configuração das notificações](#configuração-das-notificações)). A notificação abaixo foi injetada com `xcrun simctl push`, usando o mesmo título e texto que a API envia quando um integrante é mencionado em um grupo. Ela **não** passou pela API nem pelo Expo Push.
+
+![Notificação simulada](docs/prints/notificacao.png)
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 - [x] React Native, Expo SDK 57 e TypeScript
 - [x] Cadastro e login apenas com e-mail/senha (nome, celular, data de nascimento e foto)
@@ -392,4 +393,5 @@ O app trata: loading (sessão, perfil, conversas, usuários, mensagens), usuári
 - [x] Hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) e hooks personalizados
 - [x] Projeto sem `any` (ESLint)
 - [x] `firebaseConfig.json` e `.env.example` (app e API) sem segredos
-- [ ] Prints, evidência de push, URL final da API e integrantes (preencher)
+- [x] Prints das telas, URL final da API e integrantes
+- [ ] Print de push recebido em dispositivo físico (incluída apenas notificação simulada no iOS Simulator)

@@ -1,4 +1,3 @@
-/** Design tokens centralizados (cores, espaçamentos, raios e tipografia). */
 export const theme = {
   colors: {
     primary: '#2563EB',

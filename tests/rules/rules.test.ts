@@ -10,10 +10,6 @@ import {
 import { get, ref, serverTimestamp, set } from 'firebase/database';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
-/**
- * Testes das regras do Firestore e do Realtime Database no Firebase Emulator.
- * Executar: npm test (dentro de tests/rules).
- */
 const PROJECT_ID = 'demo-chat';
 let env: RulesTestEnvironment;
 

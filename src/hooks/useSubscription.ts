@@ -15,16 +15,6 @@ type SubscriptionState<T> = {
   error: Error | null;
 };
 
-/**
- * Hook genérico para listeners em tempo real do Firebase (Firestore/RTDB).
- *
- * - Abre o listener quando `key` existe e o remove no cleanup (desmontagem,
- *   troca de conversa ou logout).
- * - O estado é associado à chave: ao trocar de chave, dados antigos não são
- *   exibidos (sem precisar "resetar" estado dentro do efeito).
- *
- * `subscribe` e `initialData` devem ser estáveis (funções de service e constantes).
- */
 export function useSubscription<T>(key: string | null, subscribe: SubscribeFn<T>, initialData: T) {
   const [state, setState] = useState<SubscriptionState<T>>({
     key: null,

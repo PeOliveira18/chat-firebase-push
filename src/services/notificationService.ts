@@ -19,27 +19,12 @@ import { api } from './api';
 const DEVICE_ID_KEY = '@chat-firebase-push:deviceId';
 export const ANDROID_CHANNEL_ID = 'messages';
 
-/**
- * Responsabilidades do app em relação ao push:
- * - solicitar permissão;
- * - registrar/atualizar o token do dispositivo no Firestore;
- * - tratar recebimento e toque nas notificações;
- * - pedir à API online que envie o push de uma mensagem.
- *
- * O envio efetivo do push acontece SOMENTE na API (nunca no app).
- */
-
 type NotificationsModule = typeof import('expo-notifications');
 
 type Subscription = { remove: () => void };
 
 const NO_SUBSCRIPTION: Subscription = { remove: () => undefined };
 
-/**
- * O Expo Go no Android não suporta push desde o SDK 53: apenas importar
- * expo-notifications já gera erro. Por isso o módulo só é carregado em
- * builds nativos (APK/development build) e no iOS. Na web também não há push.
- */
 const IS_EXPO_GO_ANDROID =
   Platform.OS === 'android' && Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
@@ -94,7 +79,6 @@ function getProjectId(): string | null {
   return extraProjectId || easProjectId || null;
 }
 
-/** ID estável deste aparelho (um usuário pode ter vários dispositivos). */
 export async function getDeviceId(): Promise<string> {
   const stored = await AsyncStorage.getItem(DEVICE_ID_KEY);
 
@@ -120,9 +104,6 @@ async function saveDeviceToken(uid: string, token: string): Promise<void> {
   await setDoc(doc(db, 'users', uid, 'devices', deviceId), document);
 }
 
-/**
- * Solicita permissão, obtém o token e o grava em users/{uid}/devices/{deviceId}.
- */
 export async function registerDevice(uid: string): Promise<PushRegistrationState> {
   if (IS_EXPO_GO_ANDROID) {
     return {
@@ -176,20 +157,16 @@ export async function registerDevice(uid: string): Promise<PushRegistrationState
   return { status: 'registered', token };
 }
 
-/** Atualiza o token salvo quando o sistema o renova. */
 export function subscribeToTokenRefresh(uid: string): Subscription {
   if (!Notifications) {
     return NO_SUBSCRIPTION;
   }
 
   return Notifications.addPushTokenListener(() => {
-    registerDevice(uid).catch(() => {
-      // Falha silenciosa: o próximo login tentará registrar novamente.
-    });
+    registerDevice(uid).catch(() => {});
   });
 }
 
-/** Desativa o token deste aparelho (logout): o usuário deixa de receber push aqui. */
 export async function disableCurrentDevice(uid: string): Promise<void> {
   const deviceId = await AsyncStorage.getItem(DEVICE_ID_KEY);
 
@@ -202,16 +179,13 @@ export async function disableCurrentDevice(uid: string): Promise<void> {
       enabled: false,
       updatedAt: Date.now(),
     });
-  } catch {
-    // Documento pode não existir (permissão negada ou nunca registrado).
-  }
+  } catch {}
 }
 
 function isConversationType(value: unknown): value is ConversationType {
   return value === 'direct' || value === 'group';
 }
 
-/** Tocar em uma notificação: só existe em Android/iOS. */
 export function getInitialNotificationData(): NotificationData | null {
   if (!Notifications) {
     return null;
@@ -243,7 +217,6 @@ export function subscribeToNotificationTaps(
   });
 }
 
-/** Lê com segurança o payload { conversationId, conversationType } do push. */
 export function parseNotificationData(data: unknown): NotificationData | null {
   if (!isRecord(data)) {
     return null;
@@ -258,10 +231,6 @@ export function parseNotificationData(data: unknown): NotificationData | null {
   return { conversationId, conversationType: data.conversationType };
 }
 
-/**
- * Pede à API que calcule os destinatários e envie o push da mensagem.
- * A API não recebe destinatários: ela os calcula no servidor.
- */
 export async function requestMessagePush(
   conversationId: string,
   messageId: string,
