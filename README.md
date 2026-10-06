@@ -210,6 +210,8 @@ O aplicativo executa no iOS pelo **Expo Go** (`npx expo start` → escanear o QR
 
 Notificações push no iOS exigem uma conta **Apple Developer** (paga) para gerar a chave APNs e um build nativo. Como o projeto foi mantido **sem custos**, o push foi validado no **Android**. Com uma conta Apple, basta executar `eas build --platform ios` e permitir que o EAS gere a chave de push — nenhum código precisa mudar.
 
+No **Expo Go**, o push também foi validado em um **iPhone físico** (ver [evidência](#evidência-de-notificação-recebida)).
+
 ### Fluxo
 
 ```text
@@ -366,11 +368,11 @@ O app trata: loading (sessão, perfil, conversas, usuários, mensagens), usuári
 |---|---|---|---|
 | ![Usuários](docs/prints/usuarios.png) | ![Grupo](docs/prints/grupo.png) | ![Integrantes](docs/prints/integrantes.png) | ![Perfil](docs/prints/perfil.png) |
 
-### Notificação (simulada no iOS Simulator)
+### Evidência de notificação recebida
 
-O iOS Simulator não recebe push remoto, pois não obtém token do APNs; no iOS, o push real exige dispositivo físico (ver [Configuração das notificações](#configuração-das-notificações)). A notificação abaixo foi injetada com `xcrun simctl push`, usando o mesmo título e texto que a API envia quando um integrante é mencionado em um grupo. Ela **não** passou pela API nem pelo Expo Push.
+Push recebido em um iPhone físico (app no Expo Go), enviado pela API online após o usuário Joao mandar uma mensagem na conversa individual.
 
-![Notificação simulada](docs/prints/notificacao.png)
+<img src="docs/prints/notificacao.png" alt="Notificação recebida no iPhone" width="300">
 
 ---
 
@@ -393,5 +395,4 @@ O iOS Simulator não recebe push remoto, pois não obtém token do APNs; no iOS,
 - [x] Hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) e hooks personalizados
 - [x] Projeto sem `any` (ESLint)
 - [x] `firebaseConfig.json` e `.env.example` (app e API) sem segredos
-- [x] Prints das telas, URL final da API e integrantes
-- [ ] Print de push recebido em dispositivo físico (incluída apenas notificação simulada no iOS Simulator)
+- [x] Prints das telas, evidência de push em dispositivo físico, URL final da API e integrantes
